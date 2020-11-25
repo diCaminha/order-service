@@ -1,5 +1,6 @@
 package com.dnc.kafkademo.kafkademo;
 
+import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -14,14 +15,20 @@ public class NewOrderMain {
         var key = "akey";
         var value = "123443,1333,13431243215";
         var producer = new KafkaProducer<String, String>(properties());
-        var record = new ProducerRecord<>("ECOMMERCE_NEW_ORDER", key, value);
-        producer.send(record, (res, ex) -> {
+
+        var newOrderRecord = new ProducerRecord<>("ECOMMERCE_NEW_ORDER", key, value);
+        var emailRecord = new ProducerRecord<>("ECOMMERCE_SEND_EMAIL", key, value);
+
+        Callback callback = (res, ex) -> {
             if (ex != null) {
                 ex.printStackTrace();
                 return;
             }
             System.out.println("topic: " + res.topic() + " :: partition: " + res.partition() + " :: offset: " + res.offset());
-        } ).get();
+        };
+
+        producer.send(newOrderRecord, callback).get();
+        producer.send(emailRecord, callback).get();
     }
 
     private static Properties properties() {
