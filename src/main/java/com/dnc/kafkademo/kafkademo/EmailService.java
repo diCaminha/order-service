@@ -1,23 +1,19 @@
 package com.dnc.kafkademo.kafkademo;
 
-import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.common.serialization.StringDeserializer;
-
-import java.time.Duration;
-import java.util.Collections;
-import java.util.Properties;
 
 public class EmailService {
 
     public static void main(String[] args) {
         var emailService = new EmailService();
-        var kafkaService = new KafkaConsumerService("ECOMMERCE_SEND_EMAIL", EmailService::parse);
+        var kafkaService = new KafkaConsumerService(
+                EmailService.class.getSimpleName(),
+                "ECOMMERCE_SEND_EMAIL",
+                emailService::parse);
         kafkaService.run();
     }
 
-    private static void parse(ConsumerRecord<String, String> record) {
+    private void parse(ConsumerRecord<String, String> record) {
         System.out.println("Sending Email about order...");
         System.out.println(record.key());
         System.out.println(record.value());
